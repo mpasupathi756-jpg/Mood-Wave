@@ -16,3 +16,4 @@ EXPOSE 5000
 ENV PORT=5000
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
+

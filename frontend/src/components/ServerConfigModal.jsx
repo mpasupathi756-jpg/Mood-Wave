@@ -195,3 +195,4 @@ export default function ServerConfigModal({ isOpen, onClose }) {
     </AnimatePresence>
   )
 }
+
