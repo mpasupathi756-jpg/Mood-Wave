@@ -1,0 +1,17 @@
+{
+  "name": "moodwave",
+  "version": "2.0.0",
+  "description": "MoodWave — Advanced Mood-Based Music Streaming Application",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "dev:all": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend run start"
+  },
+  "keywords": ["music", "mood", "streaming", "jamendo", "react", "express", "webaudio"],
+  "author": "MoodWave Team",
+  "license": "MIT"
+}

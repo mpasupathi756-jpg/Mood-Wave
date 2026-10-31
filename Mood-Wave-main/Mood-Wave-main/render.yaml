@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: moodwave-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: JAMENDO_CLIENT_ID
+        value: 24b564e3
+      - key: FRONTEND_URL
+        value: "*"
+      - key: DB_SSL
+        value: "true"
+      - key: DATABASE_URL
+        sync: false

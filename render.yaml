@@ -1,0 +1,26 @@
+services:
+  # ── Java Backend ─────────────────────────────────────────────────────────
+  - type: web
+    name: moodwave-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false   # Set this in Render dashboard → paste your Supabase URI
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        value: postgres
+      - key: DB_PASSWORD
+        sync: false   # Set in Render dashboard
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        value: postgres
+      - key: JWT_SECRET
+        generateValue: true
+    healthCheckPath: /api/health
