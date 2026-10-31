@@ -27,3 +27,4 @@ ENV DB_NAME=postgres
 
 # Run the server
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
