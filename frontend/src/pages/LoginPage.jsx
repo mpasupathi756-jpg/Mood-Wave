@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Music2, Eye, EyeOff, Loader, Lock, Mail, Sparkles, Shield, User, ArrowRight } from 'lucide-react'
+import { Music2, Eye, EyeOff, Loader, Lock, Mail, Sparkles, Shield, User, ArrowRight, Server, WifiOff } from 'lucide-react'
 import useAuthStore from '../store/authStore'
+import ServerConfigModal from '../components/ServerConfigModal'
+import { getApiBaseUrl } from '../services/api'
 import toast from 'react-hot-toast'
 
 export default function LoginPage() {
@@ -10,12 +12,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [show, setShow]         = useState(false)
   const [loading, setLoading]   = useState(false)
+  const [showServerModal, setShowServerModal] = useState(false)
+  const [networkError, setNetworkError] = useState(false)
   const { login, loginGuest }   = useAuthStore()
   const navigate                = useNavigate()
+
+  const currentBackend = getApiBaseUrl()
 
   const submit = async (e, customEmail, customPassword) => {
     if (e?.preventDefault) e.preventDefault()
     setLoading(true)
+    setNetworkError(false)
     const targetEmail = customEmail || email.trim()
     const targetPassword = customPassword || password
 
@@ -24,7 +31,13 @@ export default function LoginPage() {
       toast.success(`Welcome back, ${user.username}! 🎵`)
       navigate(user.role === 'admin' ? '/admin' : '/')
     } catch (err) {
-      toast.error(err.response?.data?.msg || err.message || 'Login failed. Check server connection.')
+      const isNetErr = !err.response || err.message?.includes('Network Error') || err.code === 'ERR_NETWORK' || err.response?.status === 405
+      if (isNetErr) {
+        setNetworkError(true)
+        toast.error('Cannot connect to backend server. Configure server URL below.', { duration: 5000 })
+      } else {
+        toast.error(err.response?.data?.msg || err.message || 'Login failed. Check your credentials.')
+      }
     } finally {
       setLoading(false)
     }
@@ -58,7 +71,43 @@ export default function LoginPage() {
               Mood<span className="text-[#20C997]">Wave</span>
             </h1>
             <p className="text-[#778293] text-sm">Professional audio tuned to your emotional frequency</p>
+            
+            {/* Backend connection pill */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setShowServerModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium bg-[#10151C] hover:bg-[#1B2633] border border-[#273241] hover:border-[#20C997] text-[#778293] hover:text-[#20C997] transition-all"
+              >
+                <Server size={11} className="text-[#20C997]" />
+                <span className="truncate max-w-[200px]">Server: {currentBackend.replace('/api', '') || 'local'}</span>
+                <span className="text-[10px] text-[#A7B0BE]">(configure)</span>
+              </button>
+            </div>
           </div>
+
+          {/* Network Error alert banner */}
+          {networkError && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-[#F87171] space-y-2"
+            >
+              <div className="flex items-center gap-2 font-semibold">
+                <WifiOff size={15} /> Backend Unreachable
+              </div>
+              <p className="text-[11px] text-[#A7B0BE]">
+                The frontend could not reach your backend at <code className="text-[#F5F7FA]">{currentBackend}</code>.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowServerModal(true)}
+                className="w-full py-1.5 px-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-xs text-[#F5F7FA] font-semibold transition-colors flex items-center justify-center gap-1"
+              >
+                <Server size={12} /> Set Render Backend URL
+              </button>
+            </motion.div>
+          )}
 
           {/* Quick 1-Click Access Pill */}
           <div className="p-3.5 rounded-xl bg-[#10151C] border border-[#273241] space-y-2.5">
@@ -161,6 +210,11 @@ export default function LoginPage() {
           </p>
         </div>
       </motion.div>
+
+      <ServerConfigModal
+        isOpen={showServerModal}
+        onClose={() => setShowServerModal(false)}
+      />
     </div>
   )
 }
